@@ -15,33 +15,53 @@ data = [
 # 2. Simple AI Logic (Mock AI)
 # -----------------------------
 def generate_answer(question, data):
-    question = question.lower()
+    question = question.lower()  # make case-insensitive
 
+    # --------- Salary Queries ---------
     if "salary" in question:
-        result = [f"{row[1]} - {row[2]}" for row in data if row[2] > 5000]
-        return "Employees with salary > 5000:\n" + "\n".join(result) if result else "No matching employees."
+        if "greater" in question:
+            # Extract the number if mentioned
+            import re
+            match = re.search(r'\d+', question)
+            threshold = int(match.group()) if match else 5000
+            result = [f"{row[1]} - {row[2]}" for row in data if row[2] > threshold]
+            return f"Employees with salary > {threshold}:\n" + "\n".join(result) if result else "No matching employees."
+        else:
+            result = [f"{row[1]} - {row[2]}" for row in data]
+            return "Employees with salary:\n" + "\n".join(result) if result else "No matching employees."
 
-    elif "department" in question:
-        departments = list(set([row[3] for row in data]))
+    # --------- Department Specific Queries ---------
+    departments = list(set([row[3] for row in data]))
+    for dept in departments:
+        if dept.lower() in question:
+            result = [row[1] for row in data if row[3].lower() == dept.lower()]
+            return f"{dept} Employees:\n" + "\n".join(result) if result else f"No employees in {dept}."
+
+    # --------- All Departments ---------
+    if "department" in question:
         return "Departments:\n" + ", ".join(departments)
 
-    elif "employee" in question:
+    # --------- All Employees ---------
+    if "employee" in question:
         return "All Employees:\n" + "\n".join([row[1] for row in data])
 
-    elif "it" in question:
-        result = [row[1] for row in data if row[3].lower() == "it"]
-        return "IT Employees:\n" + "\n".join(result)
-
-    else:
-        return "Sorry, I can answer basic HR questions like employees, salary, and departments."
-
+    # --------- Fallback ---------
+    return "Sorry, I can answer basic SQL-like questions about employees, salaries, and departments."
 # -----------------------------
 # 3. Streamlit UI
 # -----------------------------
-st.set_page_config(page_title="AI HR Assistant", layout="centered")
+st.set_page_config(page_title="AI SQL Assistant", layout="centered")
 
-st.title("🤖 AI HR Assistant")
+st.title("🤖 AI SQL Assistant")
 st.write("Ask questions about employees, salary, or departments.")
+st.markdown("""
+**Examples of questions you can ask:**  
+- Show all employees  
+- Show all employees with salary  
+- Show employees with salary greater than 5000  
+- List departments  
+- Show IT employees
+""")
 
 # User input
 user_question = st.text_input("Enter your question:")
