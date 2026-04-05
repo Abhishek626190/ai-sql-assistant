@@ -4,6 +4,7 @@ import streamlit as st
 # 1. Sample HR Data (Mock DB)
 # -----------------------------
 data = [
+    ("ID","Name","Salary","Department"),
     (1, "John", 6000, "IT"),
     (2, "Alice", 4000, "HR"),
     (3, "Bob", 7000, "Finance"),
